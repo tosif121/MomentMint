@@ -1,118 +1,101 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useEffect, useState} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import HomeScreen from './src/screen/HomeScreen';
+import ProfileScreen from './src/screen/ProfileScreen';
+import MobileVerificationScreen from './src/screen/MobileVerificationScreen';
+import SplashScreen from './src/screen/SplashScreen';
+import Toast from 'react-native-toast-message';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/Ionicons';
+import SearchScreen from './src/screen/SearchScreen';
+import CameraScreen from './src/screen/CameraScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from './src/utils/types';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+type AppProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList>;
+};
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function TabNavigator() {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color}) => {
+          let iconName = '';
+
+          if (route.name === 'HomeTab') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Search') {
+            iconName = focused ? 'search' : 'search-outline';
+          } else if (route.name === 'Camera') {
+            iconName = focused ? 'camera' : 'camera-outline';
+          } else if (route.name === 'ProfileTab') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+
+          return <Icon name={iconName} size={24} color={color} />;
+        },
+        tabBarActiveTintColor: '#ffffff',
+        tabBarInactiveTintColor: '#7a7a7a',
+        tabBarStyle: {
+          height: 60,
+          backgroundColor: '#0d0d0d',
+          borderTopWidth: 0,
+          paddingTop: 5,
+          paddingBottom: 5,
+        },
+        headerShown: false,
+        tabBarShowLabel: false,
+      })}>
+      <Tab.Screen name="HomeTab" component={HomeScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Camera" component={CameraScreen} />
+      <Tab.Screen name="ProfileTab" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      setIsAuthenticated(!!token);
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+          <Stack.Screen name="Splash" component={SplashScreen} />
+          <Stack.Screen name="MainTabs" component={TabNavigator} />
+          {!isAuthenticated && (
+            <Stack.Screen
+              name="MobileVerification"
+              component={MobileVerificationScreen}
+            />
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+      <Toast />
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
