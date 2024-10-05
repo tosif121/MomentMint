@@ -7,7 +7,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons
+import Icon from 'react-native-vector-icons/Ionicons';
 import { CameraScreenProps } from '../../utils/types';
 import { showToast } from '../../utils/toast';
 

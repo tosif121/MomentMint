@@ -7,6 +7,7 @@ export type RootStackParamList = {
   MobileVerification: undefined;
   MainTabs: undefined;
   Home: undefined;
+  EditProfile: undefined;
   Preview: {imageUri: string};
 };
 
@@ -41,11 +42,6 @@ export type ProfilesScreenNavigationProp = NativeStackNavigationProp<
   'Profile'
 >;
 
-export interface ProfileHeaderProps {
-  user: {photoURL?: string};
-  photosCount: number;
-}
-
 export type MobileVerificationScreenProps = {
   navigation: MobileVerificationScreenNavigationProp;
 };
@@ -57,6 +53,59 @@ export type SplashScreenProps = {
 export type ProfileScreenProps = {
   navigation: ProfilesScreenNavigationProp;
 };
+export interface FullImageScreenProps {
+  imageUrl: string;
+  activity: string;
+  likesCount: number;
+  comments: string[];
+  onClose: () => void;
+}
+
+export interface ProfileHeaderProps {
+  data: {
+    profileImg?: string;
+    displayName?: string;
+    userName?: string;
+    streak?: number;
+    coins?: number;
+    followersCount?: number;
+    followingCount?: number;
+    bio?: string;
+  };
+  photosCount: number;
+  onEditProfile: () => void;
+  onWallet: () => void;
+}
+
+export interface Photo {
+  id: string;
+  imageUrl: string;
+  activity: string;
+  createdAt: string;
+  likesCount: number;
+  comments: any[];
+}
+
+export interface ProfileHeaderProps {
+  data: {
+    profileImg?: string;
+    displayName?: string;
+    userName?: string;
+    streak?: number;
+    coins?: number;
+    followersCount?: number;
+    followingCount?: number;
+    bio?: string;
+  };
+  photosCount: number;
+  onEditProfile: () => void;
+  onWallet: () => void;
+}
+
+export interface ProfileTabProps {
+  photos: Photo[];
+  refreshControl: React.ReactElement;
+}
 
 export interface ApiResponse<T> {
   status: boolean;

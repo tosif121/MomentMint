@@ -15,6 +15,7 @@ import CameraScreen from './src/screen/Post/CameraScreen';
 import ProfileScreen from './src/screen/Profile/ProfileScreen';
 import MessagesScreen from './src/screen/MessagesScreen';
 import PreviewScreen from './src/screen/Post/PreviewScreen';
+import ProfileEditScreen from './src/screen/Profile/ProfileEditScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -91,6 +92,7 @@ function App() {
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="Preview" component={PreviewScreen} />
+          <Stack.Screen name="EditProfile" component={ProfileEditScreen} />
           {!isAuthenticated && (
             <Stack.Screen
               name="MobileVerification"

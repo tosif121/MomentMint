@@ -98,11 +98,6 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
     try {
       const token = await AsyncStorage.getItem('token');
 
-      if (!token) {
-        showToast('error', 'Authentication required');
-        return;
-      }
-
       const formData = new FormData();
       formData.append('file', {
         uri: imageUri.startsWith('file://') ? imageUri : `file://${imageUri}`,
@@ -113,7 +108,7 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
       formData.append('activity', selectedActivity);
 
       const response = await axios.post(
-        'http://15.207.26.134:7012/api/uploadImage',
+        'http://15.207.26.134:7012/api/createPosts',
         formData,
         {
           headers: {
@@ -123,8 +118,8 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
         },
       );
 
-      if (response.data.message === 'Image uploaded successfully.') {
-        showToast('success', 'Image uploaded successfully.');
+      if (response.data.message === 'Post created successfully.') {
+        showToast('success', 'Post created successfully.');
 
         return response.data;
       } else {

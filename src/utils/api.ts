@@ -1,5 +1,6 @@
 import axios, {AxiosResponse} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {showToast} from './toast';
 
 interface ApiResponse<T> {
   status: boolean;
@@ -39,16 +40,16 @@ apiClient.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
-          console.error('Unauthorized! Please log in again.');
+          showToast('error', 'Unauthorized! Please log in again.');
           break;
         case 404:
-          console.error('Resource not found.');
+          showToast('error', 'Resource not found.');
           break;
         case 500:
-          console.error('Server error, please try again later.');
+          showToast('error', 'Server error, please try again later.');
           break;
         default:
-          console.error('An unexpected error occurred:', error.message);
+          showToast('error', 'An unexpected error occurred:' + error.message);
       }
     }
     return Promise.reject(error);

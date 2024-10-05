@@ -1,5 +1,5 @@
 import React from 'react';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
   View,
   Text,
@@ -10,40 +10,43 @@ import {
 } from 'react-native';
 import {ProfileHeaderProps} from '../../utils/types';
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({user, photosCount}) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({
+  data,
+  photosCount,
+  onEditProfile,
+  onWallet,
+}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Image
           source={
-            user?.photoURL
-              ? {uri: user.photoURL}
+            data?.profileImg
+              ? {uri: data.profileImg}
               : (require('../../images/pic.png') as ImageSourcePropType)
           }
-          style={[styles.profileImage]}
+          style={styles.profileImage}
         />
         <View style={styles.headerInfo}>
           <Text style={styles.username}>
-            {user?.displayName || 'Anonymous'}
+            {data?.displayName || 'Anonymous'}
           </Text>
-          <Text style={styles.handle}>@{user?.userName}</Text>
+          <Text style={styles.handle}>@{data?.userName}</Text>
         </View>
         <View style={styles.iconsContainer}>
           <View style={styles.streakContainer}>
             <Image
               source={require('../../images/flash.png')}
               style={styles.icon}
-              width={10}
-              height={10}
             />
-            <Text style={styles.iconText}>{user?.streak}</Text>
+            <Text style={styles.iconText}>{data?.streak ?? 0}</Text>
           </View>
-          <View style={styles.iconsContainer}>
+          <View style={styles.streakContainer}>
             <Image
               source={require('../../images/star.png')}
               style={styles.icon}
             />
-            <Text style={styles.iconText}>{user?.coins}</Text>
+            <Text style={styles.iconText}>{data?.coins ?? 0}</Text>
           </View>
         </View>
       </View>
@@ -54,28 +57,39 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({user, photosCount}) => {
           <Text style={styles.statLabel}>Moments</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{user?.followersCount}</Text>
+          <Text style={styles.statNumber}>{data?.followersCount ?? 0}</Text>
           <Text style={styles.statLabel}>Followers</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{user?.followingCount}</Text>
+          <Text style={styles.statNumber}>{data?.followingCount ?? 0}</Text>
           <Text style={styles.statLabel}>Following</Text>
         </View>
       </View>
 
       <View style={styles.bioContainer}>
-        <Text style={styles.bioText}>{user?.bio || 'Mint for the moment'}</Text>
+        <Text style={styles.bioText}>{data?.bio || 'Mint for the moment'}</Text>
       </View>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onEditProfile}
+          accessibilityLabel="Edit Profile"
+          accessibilityRole="button">
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Share Profile</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={onWallet}
+          accessibilityLabel="Connect Wallet"
+          accessibilityRole="button">
+          <Text style={styles.buttonText}>Connect Wallet</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.buttonPlus}>
-          <MaterialIcons name="person-add" size={22} color="#fff" />
+        <TouchableOpacity
+          style={styles.buttonPlus}
+          accessibilityLabel="Add Friend"
+          accessibilityRole="button">
+          <Icon name="person-add" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     </View>
@@ -84,8 +98,6 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({user, photosCount}) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#0d0d0d',
     padding: 20,
   },
   header: {
@@ -162,7 +174,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderColor: '#333',
     borderWidth: 1,
-    padding: 10,
+    padding: 8,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -180,7 +192,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
   },
 });
