@@ -54,7 +54,6 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   },
 );
-
 const get = async <T>(url: string): Promise<ApiResponse<T>> => {
   const response = await apiClient.get<ApiResponse<T>>(url);
   return response.data;

@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const CameraScreen = () => {
+const MessagesScreen = () => {
   return (
     <View>
-      <Text>CameraScreen</Text>
+      <Text>MessagesScreen</Text>
     </View>
   )
 }
 
-export default CameraScreen
+export default MessagesScreen
 
 const styles = StyleSheet.create({})

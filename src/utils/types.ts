@@ -1,4 +1,6 @@
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {CompositeNavigationProp} from '@react-navigation/native';
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -15,6 +17,15 @@ export type MainTabParamList = {
   Profile: undefined;
 };
 
+export type CameraScreenNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList, 'Camera'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
+
+export interface CameraScreenProps {
+  navigation: CameraScreenNavigationProp;
+}
+
 export type SplashScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'Splash'
@@ -28,21 +39,7 @@ export type MobileVerificationScreenNavigationProp = NativeStackNavigationProp<
 export type ProfilesScreenNavigationProp = NativeStackNavigationProp<
   MainTabParamList,
   'Profile'
->; // Updated to use MainTabParamList
-
-export type CameraScreenNavigationProp = NativeStackNavigationProp<
-  MainTabParamList,
-  'Camera'
->; // Removed extra argument
-
-export interface CameraScreenProps {
-  navigation: CameraScreenNavigationProp;
-  route: {
-    params: {
-      imageUri: string;
-    };
-  };
-}
+>;
 
 export interface ProfileHeaderProps {
   user: {photoURL?: string};

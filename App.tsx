@@ -2,17 +2,19 @@ import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from './src/screen/HomeScreen';
-import ProfileScreen from './src/screen/ProfileScreen';
 import MobileVerificationScreen from './src/screen/MobileVerificationScreen';
 import SplashScreen from './src/screen/SplashScreen';
 import Toast from 'react-native-toast-message';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import SearchScreen from './src/screen/SearchScreen';
-import CameraScreen from './src/screen/CameraScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from './src/utils/types';
+import CameraScreen from './src/screen/Post/CameraScreen';
+import ProfileScreen from './src/screen/Profile/ProfileScreen';
+import MessagesScreen from './src/screen/MessagesScreen';
+import PreviewScreen from './src/screen/Post/PreviewScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,7 +36,9 @@ function TabNavigator() {
             iconName = focused ? 'search' : 'search-outline';
           } else if (route.name === 'Camera') {
             iconName = focused ? 'camera' : 'camera-outline';
-          } else if (route.name === 'ProfileTab') {
+          } else if (route.name === 'Messages') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
 
@@ -55,7 +59,8 @@ function TabNavigator() {
       <Tab.Screen name="HomeTab" component={HomeScreen} />
       <Tab.Screen name="Search" component={SearchScreen} />
       <Tab.Screen name="Camera" component={CameraScreen} />
-      <Tab.Screen name="ProfileTab" component={ProfileScreen} />
+      <Tab.Screen name="Messages" component={MessagesScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
@@ -85,6 +90,7 @@ function App() {
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="MainTabs" component={TabNavigator} />
+          <Stack.Screen name="Preview" component={PreviewScreen} />
           {!isAuthenticated && (
             <Stack.Screen
               name="MobileVerification"

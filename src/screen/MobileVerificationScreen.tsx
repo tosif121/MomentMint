@@ -214,7 +214,7 @@ const MobileVerificationScreen: React.FC = () => {
         '/checkMobileNumber',
         payload,
       );
-      if (response.data.status) {
+        if (response.data.status) {
         showToast('success', response.data.message || 'send otp on whatsapp');
         setIsOtpSent(true);
         startResendTimer();

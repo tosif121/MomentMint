@@ -16,7 +16,8 @@ import Modal from 'react-native-modal';
 import {CameraScreenProps} from '../../utils/types';
 import {showToast} from '../../utils/toast';
 import axios from 'axios';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const activities = {
   'At Collage': '🎓',
@@ -77,58 +78,6 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
     navigation.goBack();
   };
 
-  const handleConfirm = async () => {
-    if (!selectedActivity) {
-      showToast('error', 'Please select an activity.');
-      setIsModalVisible(true);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await uploadImageAndSaveData();
-      navigation.navigate('Profile');
-    } catch (error) {
-      console.error('Error saving image and activity:', error);
-      showToast('error', 'Failed to save data. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const uploadImageAndSaveData = async () => {
-    if (!currentUser) {
-      console.error('No user logged in');
-      showToast('error', 'Please log in first');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', {
-      uri: imageUri.startsWith('file://') ? imageUri : `file://${imageUri}`,
-      type: 'image/jpeg',
-      name: 'image.jpg',
-    });
-    formData.append('userId', currentUser.uid);
-    formData.append('uploadType', 'post');
-    formData.append('activity', selectedActivity);
-
-    try {
-      const response = await axios.post(
-        `http://15.207.26.134:7012/api/uploadImage`,
-        formData,
-        {
-          headers: {'Content-Type': 'multipart/form-data'},
-        },
-      );
-
-      showToast('success', response.data.message);
-    } catch (error) {
-      console.error('Upload error:', error);
-      showToast('error', 'Upload failed');
-    }
-  };
-
   const handleActivitySelect = (activityName: string) => {
     setSelectedActivity(
       activityName === 'Custom Activity' ? searchQuery.trim() : activityName,
@@ -140,11 +89,82 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
   useEffect(() => {
     setFilteredActivities(
       Object.keys(activities).filter(activity =>
-        activity.toLowerCase().includes(searchQuery.toLowerCase())
+        activity.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     );
   }, [searchQuery]);
-  
+
+  const uploadImageAndSaveData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+
+      if (!token) {
+        showToast('error', 'Authentication required');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: imageUri.startsWith('file://') ? imageUri : `file://${imageUri}`,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      });
+      formData.append('uploadType', 'posts');
+      formData.append('activity', selectedActivity);
+
+      const response = await axios.post(
+        'http://15.207.26.134:7012/api/uploadImage',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.data.message === 'Image uploaded successfully.') {
+        showToast('success', 'Image uploaded successfully.');
+
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Upload failed');
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || 'Network error occurred';
+        console.error('Axios Error:', errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      console.error('Error:', error);
+      throw error;
+    }
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedActivity) {
+      setIsModalVisible(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const postData = await uploadImageAndSaveData();
+      showToast('success', 'Post created successfully!');
+      navigation.navigate('Profile', {newPost: postData});
+    } catch (error) {
+      console.error('Error saving image and activity:', error);
+      showToast(
+        'error',
+        error.message || 'Failed to save data. Please try again.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0d0d0d" />
@@ -192,7 +212,7 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>What are you doing?</Text>
           <View style={styles.searchContainer}>
-            <MaterialIcons
+            <Icon
               name="search"
               size={24}
               color="#ffffff"
@@ -223,7 +243,7 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
                 onPress={() => handleActivitySelect('Custom Activity')}>
                 <View style={styles.activityTextContainer}>
                   <Text style={styles.activityText}>{searchQuery}</Text>
-                  <MaterialIcons name="add" size={24} color="#2196f3" />
+                  <Icon name="add" size={24} color="#2196f3" />
                 </View>
               </TouchableOpacity>
             )}
@@ -299,68 +319,56 @@ const styles = StyleSheet.create({
   postButtonText: {
     fontSize: 18,
     color: '#ffffff',
-    fontWeight: '600',
+    fontWeight: 'bold',
+  },
+  modal: {
+    justifyContent: 'center',
+    margin: 0,
   },
   modalContainer: {
-    backgroundColor: '#000',
-    borderTopEndRadius: 15,
-    borderTopStartRadius: 15,
+    backgroundColor: '#212121',
+    borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
-    marginTop: 100,
-    width: '100%',
-    height: '93%',
+    maxHeight: height * 0.8,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 20,
+    fontWeight: 'bold',
     color: '#ffffff',
-  },
-  modal: {
-    margin: 0,
-  },
-  scrollView: {
-    flexGrow: 1,
-    width: '100%',
-  },
-  activityButton: {
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: '#111111',
     marginBottom: 10,
-    width: width * 0.9,
-    alignItems: 'center',
   },
-  activityText: {
-    fontSize: 18,
-    color: '#ffffff',
-    textAlign: 'center',
-    width: '100%',
-  },
-
-  activityTextContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#222',
+    borderColor: '#999',
+    borderWidth: 1,
     borderRadius: 5,
-    padding: 5,
     marginBottom: 10,
-  },
-  searchIcon: {
-    color: '#ffffff',
-    marginLeft: 10,
+    paddingHorizontal: 10,
   },
   searchInput: {
     flex: 1,
     color: '#ffffff',
-    marginLeft: 10,
+    paddingLeft: 10,
+  },
+  scrollView: {
+    maxHeight: height * 0.5,
+  },
+  activityButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  activityText: {
+    fontSize: 16,
+    color: '#ffffff',
+  },
+  activityTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  searchIcon: {
+    marginRight: 10,
   },
 });
 
