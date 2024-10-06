@@ -10,12 +10,15 @@ import {ApiResponse, ProfileScreenProps, Photo} from '../../utils/types';
 import apiClient from '../../utils/api';
 import ProfileHeader from './ProfileHeader';
 import ProfileTab from './ProfileTab';
+import {useRoute} from '@react-navigation/native';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({navigation}) => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
+  const route = useRoute();
+  const {newPost} = route.params || {};
 
   const fetchData = useCallback(async () => {
     try {
@@ -41,6 +44,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({navigation}) => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (route.params?.newPost) {
+      fetchData();
+    }
+  }, [route.params?.newPost]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

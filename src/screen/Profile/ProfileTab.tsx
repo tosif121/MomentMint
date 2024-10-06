@@ -22,7 +22,6 @@ const PostScreen: React.FC<{
 }> = ({photos, refreshPhotos}) => {
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refreshPhotos();
@@ -30,9 +29,10 @@ const PostScreen: React.FC<{
   }, [refreshPhotos]);
 
   // Render each photo item
-  const renderItem = ({item}: {item: Photo}) => (
+  const renderItem = ({item, index}: {item: Photo; index: number}) => (
     <View style={styles.photoContainer}>
-      <TouchableOpacity onPress={() => setSelectedPhoto(item)}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('SingleImage', {photos, index})}>
         <View style={styles.imageContainer}>
           <Image source={{uri: item.imageUrl}} style={styles.photo} />
 
@@ -75,9 +75,10 @@ const PostScreen: React.FC<{
       ) : (
         <FlatList
           data={photos}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={item =>
+            item.id ? item.id.toString() : Math.random().toString()
+          }
           renderItem={renderItem}
-          contentContainerStyle={styles.photoList}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -93,7 +94,6 @@ const TagScreen: React.FC = () => (
 
 const ProfileTab: React.FC<ProfileTabProps> = ({photos}) => {
   const [activeTab, setActiveTab] = useState('Post');
-  console.log(photos, 'photos');
   const refreshPhotos = async () => {
     // Add your logic here to refresh the photos
   };
@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196f3',
     paddingHorizontal: 10,
     paddingVertical: 6,
+    borderRadius: 10,
   },
   activityText: {
     color: 'white',
