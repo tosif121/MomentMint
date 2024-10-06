@@ -121,7 +121,7 @@ const HomeScreen: React.FC = () => {
           style={styles.gradientCard}>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('SingleImage', {photos: [item], index: 0})
+              navigation.navigate('ProfilePost', {photos: [item], index: 0})
             }>
             <Image source={{uri: item.imageUrl}} style={styles.postImage} />
           </TouchableOpacity>

@@ -18,49 +18,8 @@ import {showToast} from '../../utils/toast';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const activities = {
-  'At Collage': '🎓',
-  'At Farm': '🌾',
-  'At Home': '🏠',
-  'At Temple': '🕌',
-  'At Traffic': '🚦',
-  Attending: '🎟️',
-  Baking: '🍞',
-  Celebration: '🎉',
-  Chilling: '🛋️',
-  'Class Bunk': '🏫❌',
-  Cleaning: '🧹',
-  Communting: '🚇',
-  Going: '🚶‍♂️',
-  Grooming: '💇‍♂️',
-  Hangout: '👯‍♂️',
-  'Independence Day': '🇮🇳',
-  Janmashtami: '🎊',
-  Learning: '📚',
-  Listening: '🎧',
-  Meditating: '🧘‍♂️',
-  Cooking: '🍳',
-  Cycling: '🚴‍♀️',
-  Dancing: '💃',
-  Designing: '🎨',
-  Drinking: '🍹',
-  Eating: '🍽️',
-  Engagement: '💍',
-  Enjoying: '😊',
-  Exercising: '🏋️‍♂️',
-  Gaming: '🎮',
-  'Ganesh Chaturthi': '🐘',
-  Gardening: '🌿',
-  Meeting: '👥',
-  Nothing: '😴',
-  Partying: '🥳',
-  'Playing Garba': '🪔',
-  Playing: '🎲',
-  Praying: '🙏',
-  Rafting: '🚣‍♂️',
-  Reading: '📖',
-};
+import LinearGradient from 'react-native-linear-gradient';
+import {activities} from '../../utils/activity';
 
 const {width, height} = Dimensions.get('window');
 
@@ -79,8 +38,13 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
   };
 
   const handleActivitySelect = (activityName: string) => {
+    const trimmedQuery = searchQuery.trim();
+    if (activityName === 'Custom Activity' && !trimmedQuery) {
+      showToast('error', 'Please enter a valid custom activity.');
+      return;
+    }
     setSelectedActivity(
-      activityName === 'Custom Activity' ? searchQuery.trim() : activityName,
+      activityName === 'Custom Activity' ? trimmedQuery : activityName,
     );
     setIsModalVisible(false);
     setSearchQuery('');
@@ -120,21 +84,17 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
 
       if (response.data.message === 'Post created successfully.') {
         showToast('success', 'Post created successfully.');
-
         return response.data;
       } else {
         throw new Error(response.data.message || 'Upload failed');
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMessage =
-          error.response?.data?.message || 'Network error occurred';
-        console.error('Axios Error:', errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      console.error('Error:', error);
-      throw error;
+      const errorMessage =
+        error.response?.data?.message ||
+        'Failed to upload image. Please try again.';
+      showToast('error', errorMessage);
+      console.error('Upload error:', error); // Log the error for debugging
+      throw new Error(errorMessage);
     }
   };
 
@@ -147,7 +107,6 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
     setIsLoading(true);
     try {
       const postData = await uploadImageAndSaveData();
-      showToast('success', 'Post created successfully!');
       navigation.navigate('Profile', {newPost: postData});
     } catch (error) {
       console.error('Error saving image and activity:', error);
@@ -173,9 +132,19 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
           <TouchableOpacity
             style={styles.activityBadge}
             onPress={() => setIsModalVisible(true)}>
-            <Text style={styles.activityBadgeText}>
-              {activities[selectedActivity]} {selectedActivity}
-            </Text>
+            <LinearGradient
+              colors={['#8b5cf6', '#2196f3']}
+              start={{x: 0, y: 0}}
+              end={{x: 1, y: 1}}
+              style={styles.activityBadgeGradient}>
+              {activities[selectedActivity]?.url && (
+                <Image
+                  source={activities[selectedActivity].url}
+                  style={styles.activityBadgeImage}
+                />
+              )}
+              <Text style={styles.activityBadgeText}>{selectedActivity}</Text>
+            </LinearGradient>
           </TouchableOpacity>
         )}
       </View>
@@ -187,17 +156,19 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handleConfirm}
-          style={[
-            styles.button,
-            styles.postButton,
-            isLoading && styles.disabledButton,
-          ]}
+          style={[styles.button, isLoading && styles.disabledButton]}
           disabled={isLoading}>
-          {isLoading ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text style={styles.buttonText}>Post</Text>
-          )}
+          <LinearGradient
+            colors={['#8b5cf6', '#2196f3']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={styles.gradientButton}>
+            {isLoading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.buttonText}>Post</Text>
+            )}
+          </LinearGradient>
         </TouchableOpacity>
       </View>
       <Modal
@@ -227,21 +198,34 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
                 key={activity}
                 style={styles.activityButton}
                 onPress={() => handleActivitySelect(activity)}>
-                <Text style={styles.activityText}>
-                  {activities[activity]} {activity}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            {searchQuery && !filteredActivities.includes(searchQuery) && (
-              <TouchableOpacity
-                style={styles.activityButton}
-                onPress={() => handleActivitySelect('Custom Activity')}>
-                <View style={styles.activityTextContainer}>
-                  <Text style={styles.activityText}>{searchQuery}</Text>
-                  <Icon name="add" size={24} color="#2196f3" />
+                <View style={styles.activityRow}>
+                  <Text style={styles.activityText}>{activity}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleActivitySelect(activity)}>
+                    <Image
+                      source={activities[activity].url}
+                      style={[
+                        styles.activityThumbnail,
+                        selectedActivity === activity && styles.selectedImage,
+                      ]}
+                    />
+                  </TouchableOpacity>
                 </View>
               </TouchableOpacity>
-            )}
+            ))}
+            {searchQuery &&
+              !filteredActivities.some(
+                a => a.toLowerCase() === searchQuery.toLowerCase(),
+              ) && (
+                <TouchableOpacity
+                  style={styles.activityButton}
+                  onPress={() => handleActivitySelect('Custom Activity')}>
+                  <View style={styles.activityTextContainer}>
+                    <Text style={styles.activityText}>{searchQuery}</Text>
+                    <Icon name="add" size={24} color="#2196f3" />
+                  </View>
+                </TouchableOpacity>
+              )}
           </ScrollView>
         </View>
       </Modal>
@@ -258,26 +242,39 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 15,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   image: {
-    width,
-    height,
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
   },
   activityBadge: {
     position: 'absolute',
     top: 20,
     left: 20,
-    backgroundColor: '#00c6ff',
-    padding: 10,
-    borderRadius: 20,
+    borderRadius: 10,
+  },
+  activityBadgeGradient: {
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
   },
   activityBadgeText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#ffffff',
+  },
+  gradientButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    width: '100%',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -285,49 +282,38 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   button: {
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
     width: '48%',
     alignItems: 'center',
+    borderRadius: 10,
   },
   cancelButton: {
-    backgroundColor: '#ff4c4c',
+    backgroundColor: '#ff4444',
   },
   buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  postButton: {
-    backgroundColor: '#2196f3',
-    width: '48%',
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#ffffff',
   },
   disabledButton: {
-    opacity: 0.7,
-  },
-  gradient: {
-    borderRadius: 10,
-    padding: 16,
-    alignItems: 'center',
-  },
-  postButtonText: {
-    fontSize: 18,
-    color: '#ffffff',
-    fontWeight: 'bold',
+    opacity: 0.5,
   },
   modal: {
     justifyContent: 'center',
+    alignItems: 'center',
     margin: 0,
+    marginTop: 100,
   },
   modalContainer: {
-    backgroundColor: '#212121',
-    borderRadius: 10,
+    width: '100%',
+    backgroundColor: '#333',
     padding: 20,
-    maxHeight: height * 0.8,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: 10,
@@ -335,35 +321,61 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#999',
-    borderWidth: 1,
-    borderRadius: 5,
     marginBottom: 10,
+    backgroundColor: '#444',
+    borderRadius: 10,
     paddingHorizontal: 10,
+  },
+  searchIcon: {
+    marginRight: 10,
   },
   searchInput: {
     flex: 1,
+    height: 40,
     color: '#ffffff',
-    paddingLeft: 10,
   },
   scrollView: {
-    maxHeight: height * 0.5,
+    maxHeight: height * 0.7,
   },
   activityButton: {
     paddingVertical: 10,
     paddingHorizontal: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#222',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  activityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   activityText: {
     fontSize: 16,
+    fontWeight: 'bold',
     color: '#ffffff',
+    flex: 1,
+    marginRight: 10,
   },
+  activityThumbnail: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+  },
+  activityBadgeImage: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+
   activityTextContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  searchIcon: {
-    marginRight: 10,
+    width: '100%',
   },
 });
 

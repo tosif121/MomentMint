@@ -14,6 +14,7 @@ import moment from 'moment';
 import {useNavigation} from '@react-navigation/native';
 import {Photo, ProfileTabProps} from '../../utils/types';
 import LinearGradient from 'react-native-linear-gradient';
+import {activities} from '../../utils/activity';
 
 const {height, width} = Dimensions.get('window');
 
@@ -29,62 +30,78 @@ const PostScreen: React.FC<{
     setRefreshing(false);
   }, [refreshPhotos]);
 
-  const renderItem = ({item, index}: {item: Photo; index: number}) => (
-    <TouchableOpacity
-      style={styles.photoContainer}
-      onPress={() => navigation.navigate('ProfilePost', {photos, index})}
-      activeOpacity={0.9}>
-      <View style={styles.imageContainer}>
-        <Image source={{uri: item.imageUrl}} style={styles.photo} />
-        <LinearGradient
-          colors={['rgba(0,0,0,0.6)', 'transparent']}
-          style={styles.gradientOverlay}
-        />
-        <View style={styles.dateContainer}>
-          <Text style={styles.dateText}>
-            {moment(item.createdAt).format('DD')}
-          </Text>
-          <Text style={styles.monthText}>
-            {moment(item.createdAt).format('MMM')}
-          </Text>
-        </View>
-        <LinearGradient
-          colors={['#8b5cf6', '#2196f3']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 1}}
-          style={styles.activityContainerOuter}>
-          <Text style={styles.activityText}>{item.activity}</Text>
-        </LinearGradient>
-      </View>
-      <View style={styles.bottomRow}>
-        <View style={styles.interactionBar}>
-          <View style={styles.interactionButtonContainer}>
-            <TouchableOpacity style={styles.interactionButton}>
-              <Icon name="flame-outline" size={24} color="#FF6B6B" />
-              <Text style={styles.interactionText}>{item.likesCount}</Text>
-            </TouchableOpacity>
-          </View>
+  const renderItem = ({item, index}: {item: Photo; index: number}) => {
+    const activity = item.activity;
 
-          <View style={styles.interactionButtonContainer}>
-            <TouchableOpacity style={styles.interactionButton}>
-              <Icon
-                name="chatbubble-ellipses-outline"
-                size={24}
-                color="#8b5cf6"
+    const relatedImage = activities[activity]?.url;
+
+    return (
+      <TouchableOpacity
+        style={styles.photoContainer}
+        onPress={() => navigation.navigate('ProfilePost', {photos, index})}
+        activeOpacity={0.9}>
+        <View style={styles.imageContainer}>
+          <Image source={{uri: item.imageUrl}} style={styles.photo} />
+          <LinearGradient
+            colors={['rgba(0,0,0,0.6)', 'transparent']}
+            style={styles.gradientOverlay}
+          />
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateText}>
+              {moment(item.createdAt).format('DD')}
+            </Text>
+            <Text style={styles.monthText}>
+              {moment(item.createdAt).format('MMM')}
+            </Text>
+          </View>
+          <LinearGradient
+            colors={['#8b5cf6', '#2196f3']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={styles.activityContainerOuter}>
+            {relatedImage ? (
+              <Image
+                source={relatedImage}
+                style={styles.relatedActivityImage}
               />
-              <Text style={styles.interactionText}>{item.comments.length}</Text>
-            </TouchableOpacity>
-          </View>
+            ) : (
+              <></>
+            )}
+            <Text style={styles.activityText}>{activity}</Text>
+          </LinearGradient>
+        </View>
+        <View style={styles.bottomRow}>
+          <View style={styles.interactionBar}>
+            <View style={styles.interactionButtonContainer}>
+              <TouchableOpacity style={styles.interactionButton}>
+                <Icon name="flame-outline" size={24} color="#FF6B6B" />
+                <Text style={styles.interactionText}>{item.likesCount}</Text>
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.interactionButtonContainer}>
-            <TouchableOpacity style={styles.interactionButton}>
-              <Icon name="paper-plane-outline" size={24} color="#FFD93D" />
-            </TouchableOpacity>
+            <View style={styles.interactionButtonContainer}>
+              <TouchableOpacity style={styles.interactionButton}>
+                <Icon
+                  name="chatbubble-ellipses-outline"
+                  size={24}
+                  color="#8b5cf6"
+                />
+                <Text style={styles.interactionText}>
+                  {item.comments.length}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.interactionButtonContainer}>
+              <TouchableOpacity style={styles.interactionButton}>
+                <Icon name="paper-plane-outline" size={24} color="#FFD93D" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.screenContainer}>
@@ -154,6 +171,7 @@ const styles = StyleSheet.create({
   profileScreenContainer: {
     flex: 1,
   },
+
   screenContainer: {
     flex: 1,
     paddingHorizontal: 15,
@@ -213,7 +231,17 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 6,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
+
+  relatedActivityImage: {
+    width: 24,
+    height: 24,
+    marginRight: 5,
+  },
+
   activityText: {
     color: 'white',
     fontSize: 14,
