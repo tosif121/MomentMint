@@ -17,6 +17,7 @@ import moment from 'moment';
 import {useNavigation} from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import apiClient from '../utils/api';
+import {activities} from '../utils/activity';
 
 const {width, height} = Dimensions.get('window');
 const ITEM_SIZE = width * 0.9;
@@ -58,7 +59,6 @@ const HomeScreen: React.FC = () => {
 
       const response = await apiClient.get('/posts');
       const apiResponse = response.data as ApiResponse;
-
       if (apiResponse.status && Array.isArray(apiResponse.data)) {
         setPhotos(apiResponse.data);
       } else {
@@ -105,6 +105,9 @@ const HomeScreen: React.FC = () => {
       extrapolate: 'clamp',
     });
 
+    const activity = item.activity;
+
+    const relatedImage = activities[activity]?.url;
     return (
       <Animated.View
         style={[
@@ -145,13 +148,22 @@ const HomeScreen: React.FC = () => {
                 </Text>
               </View>
             </View>
-
-            <Text style={styles.activityText}>{item.activity}</Text>
+            <View style={styles.activityContainerOuter}>
+              {relatedImage ? (
+                <Image
+                  source={relatedImage}
+                  style={styles.relatedActivityImage}
+                />
+              ) : (
+                <></>
+              )}
+              <Text style={styles.activityText}>{item.activity}</Text>
+            </View>
             <View style={styles.interactionBar}>
               <View style={styles.interactionButtonContainer}>
                 <TouchableOpacity style={styles.interactionButton}>
                   <Icon name="flame-outline" size={24} color="#FF6B6B" />
-                  <Text style={styles.interactionText}>5 Inspires</Text>
+                  <Text style={styles.interactionText}>0</Text>
                 </TouchableOpacity>
               </View>
 
@@ -201,7 +213,7 @@ const HomeScreen: React.FC = () => {
   if (photos.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Icon name="images-outline" size={48} color="#4ECDC4" />
+        <Icon name="images-outline" size={48} color="#2196f3" />
         <Text style={styles.emptyText}>No posts found</Text>
       </View>
     );
@@ -231,7 +243,7 @@ const HomeScreen: React.FC = () => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#4ECDC4"
+            tintColor="#2196f3"
           />
         }
       />
@@ -247,7 +259,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#121212',
   },
   loadingText: {
-    color: '#4ECDC4',
+    color: '#2196f3',
     marginTop: 10,
     fontSize: 16,
   },
@@ -292,7 +304,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#4ECDC4',
+    backgroundColor: '#2196f3',
     borderRadius: 5,
   },
   retryButtonText: {
@@ -325,7 +337,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 10,
     borderWidth: 2,
-    borderColor: '#4ECDC4',
+    borderColor: '#2196f3',
   },
   userName: {
     fontSize: 16,
@@ -336,11 +348,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#888888',
   },
+
+  activityContainerOuter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  relatedActivityImage: {
+    width: 34,
+    height: 34,
+    marginRight: 5,
+  },
   activityText: {
     fontSize: 14,
+    fontWeight: '500',
     color: '#DDDDDD',
-    marginBottom: 15,
-    lineHeight: 20,
   },
   interactionBar: {
     flexDirection: 'row',
