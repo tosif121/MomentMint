@@ -13,8 +13,9 @@ import {
 import moment from 'moment';
 import {useNavigation} from '@react-navigation/native';
 import {Photo, ProfileTabProps} from '../../utils/types';
+import LinearGradient from 'react-native-linear-gradient';
 
-const {height} = Dimensions.get('window');
+const {height, width} = Dimensions.get('window');
 
 const PostScreen: React.FC<{
   photos: Photo[];
@@ -28,44 +29,61 @@ const PostScreen: React.FC<{
     setRefreshing(false);
   }, [refreshPhotos]);
 
-  // Render each photo item
   const renderItem = ({item, index}: {item: Photo; index: number}) => (
-    <View style={styles.photoContainer}>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('SingleImage', {photos, index})}>
-        <View style={styles.imageContainer}>
-          <Image source={{uri: item.imageUrl}} style={styles.photo} />
-
-          {/* Date overlay */}
-          <View style={styles.dateContainer}>
-            <Text style={styles.dateText}>
-              {moment(item.createdAt).format('DD')}
-            </Text>
-            <Text style={styles.monthText}>
-              {moment(item.createdAt).format('MMM')}
-            </Text>
-          </View>
-
-          <View style={styles.activityContainerOuter}>
-            <View style={styles.activityContainerInner}>
-              <Text style={styles.activityText}>{item.activity}</Text>
-            </View>
-          </View>
+    <TouchableOpacity
+      style={styles.photoContainer}
+      onPress={() => navigation.navigate('ProfilePost', {photos, index})}
+      activeOpacity={0.9}>
+      <View style={styles.imageContainer}>
+        <Image source={{uri: item.imageUrl}} style={styles.photo} />
+        <LinearGradient
+          colors={['rgba(0,0,0,0.6)', 'transparent']}
+          style={styles.gradientOverlay}
+        />
+        <View style={styles.dateContainer}>
+          <Text style={styles.dateText}>
+            {moment(item.createdAt).format('DD')}
+          </Text>
+          <Text style={styles.monthText}>
+            {moment(item.createdAt).format('MMM')}
+          </Text>
         </View>
-      </TouchableOpacity>
+        <LinearGradient
+          colors={['#8b5cf6', '#2196f3']}
+          start={{x: 0, y: 0}}
+          end={{x: 1, y: 1}}
+          style={styles.activityContainerOuter}>
+          <Text style={styles.activityText}>{item.activity}</Text>
+        </LinearGradient>
+      </View>
       <View style={styles.bottomRow}>
-        <View style={styles.iconRow}>
-          <View style={styles.iconContainer}>
-            <Icon name="heart" size={20} color="#FF4724" />
-            <Text style={styles.iconText}>{item.likesCount}</Text>
+        <View style={styles.interactionBar}>
+          <View style={styles.interactionButtonContainer}>
+            <TouchableOpacity style={styles.interactionButton}>
+              <Icon name="flame-outline" size={24} color="#FF6B6B" />
+              <Text style={styles.interactionText}>{item.likesCount}</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.iconContainer}>
-            <Icon name="chatbubble-outline" size={20} color="#2196f3" />
-            <Text style={styles.iconText}>{item.comments.length}</Text>
+
+          <View style={styles.interactionButtonContainer}>
+            <TouchableOpacity style={styles.interactionButton}>
+              <Icon
+                name="chatbubble-ellipses-outline"
+                size={24}
+                color="#8b5cf6"
+              />
+              <Text style={styles.interactionText}>{item.comments.length}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.interactionButtonContainer}>
+            <TouchableOpacity style={styles.interactionButton}>
+              <Icon name="paper-plane-outline" size={24} color="#FFD93D" />
+            </TouchableOpacity>
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -136,44 +154,9 @@ const styles = StyleSheet.create({
   profileScreenContainer: {
     flex: 1,
   },
-  dateContainer: {
-    position: 'absolute',
-    top: 100,
-    left: -60,
-    alignItems: 'center',
-  },
-  dateText: {
-    color: 'white',
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  monthText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '400',
-  },
-  activityContainerOuter: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    borderRadius: 5,
-    overflow: 'hidden',
-  },
-  activityContainerInner: {
-    flexDirection: 'row',
-    backgroundColor: '#2196f3',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
-  },
-  activityText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
-  },
   screenContainer: {
     flex: 1,
-    paddingEnd: 15,
+    paddingHorizontal: 15,
   },
   tagScreenContainer: {
     flex: 1,
@@ -181,48 +164,99 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   photoContainer: {
-    marginVertical: 10,
-    borderRadius: 10,
+    marginVertical: 5,
+    borderRadius: 18,
     overflow: 'hidden',
   },
   imageContainer: {
     position: 'relative',
-    width: '80%',
-    alignSelf: 'flex-end',
+    width: '100%',
+    height: height * 0.5,
   },
   photo: {
     width: '100%',
-    height: height * 0.5,
+    height: '100%',
+    borderRadius: 18,
+  },
+  gradientOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '30%',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+  },
+  dateContainer: {
+    position: 'absolute',
+    top: 25,
+    left: 20,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.3)',
     borderRadius: 10,
+    padding: 8,
+  },
+  dateText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  monthText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  activityContainerOuter: {
+    position: 'absolute',
+    top: 25,
+    right: 20,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  activityText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
   bottomRow: {
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  interactionBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingTop: 10,
-    marginLeft: 60,
+    borderTopWidth: 1,
+    borderTopColor: '#333333',
   },
-  iconRow: {
-    flexDirection: 'row',
+  interactionButtonContainer: {
+    flex: 1,
     alignItems: 'center',
   },
-  iconContainer: {
+  interactionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 10,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
-  iconText: {
+  interactionText: {
+    color: '#BBBBBB',
     marginLeft: 5,
-    fontSize: 14,
-    color: '#666',
+    fontSize: 12,
   },
   bio: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 18,
+    color: '#888',
     marginTop: 20,
+    textAlign: 'center',
   },
   tabBar: {
     flexDirection: 'row',
     paddingVertical: 10,
     justifyContent: 'space-around',
-    elevation: 3,
+    borderTopColor: '#444',
+    borderTopWidth: 1,
   },
   tabItem: {
     flex: 1,
@@ -234,11 +268,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#1a1a1a',
   },
   activeTabItem: {
-    borderBottomColor: '#ffffff',
+    borderBottomColor: '#fff',
   },
   icon: {
     width: 24,
     height: 24,
+    tintColor: '#fff',
   },
 });
 

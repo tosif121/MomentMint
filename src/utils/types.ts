@@ -8,7 +8,7 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Home: undefined;
   EditProfile: undefined;
-  SingleImage: undefined;
+  ProfilePost: undefined;
   Preview: {imageUri: string};
 };
 

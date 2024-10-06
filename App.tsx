@@ -16,8 +16,7 @@ import ProfileScreen from './src/screen/Profile/ProfileScreen';
 import MessagesScreen from './src/screen/MessagesScreen';
 import PreviewScreen from './src/screen/Post/PreviewScreen';
 import ProfileEditScreen from './src/screen/Profile/ProfileEditScreen';
-import ImageCarousel from './src/screen/Profile/ImageCarousel';
-import SingleImage from './src/screen/Profile/SingleImage';
+import ProfilePost from './src/screen/Profile/ProfilePost';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -95,7 +94,7 @@ function App() {
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="Preview" component={PreviewScreen} />
           <Stack.Screen name="EditProfile" component={ProfileEditScreen} />
-          <Stack.Screen name="SingleImage" component={SingleImage} />
+          <Stack.Screen name="ProfilePost" component={ProfilePost} />
           {!isAuthenticated && (
             <Stack.Screen
               name="MobileVerification"
