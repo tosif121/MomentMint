@@ -51,6 +51,19 @@ const MobileVerificationScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
+    const checkToken = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (token) {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'MainTabs'}],
+        });
+      }
+    };
+    checkToken();
+  }, []);
+
+  useEffect(() => {
     fetchCountries();
   }, []);
 

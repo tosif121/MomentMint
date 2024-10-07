@@ -1,6 +1,14 @@
-import { StyleSheet, Text, View, FlatList, Image, TextInput, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
-import Icon from 'react-native-vector-icons/Ionicons'; // Make sure you have this package installed
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Image,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
+import React, {useState} from 'react';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const messagesData = [
   {
@@ -8,7 +16,7 @@ const messagesData = [
     name: 'Alice',
     message: 'Hey! How are you?',
     time: '2m ago',
-    avatar: require('../images/pic.png'), // Use require for local images
+    avatar: require('../images/pic.png'),
   },
   {
     id: '2',
@@ -43,11 +51,11 @@ const messagesData = [
 const MessagesScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredMessages = messagesData.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredMessages = messagesData.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <View style={styles.messageContainer}>
       <Image source={item.avatar} style={styles.avatar} />
       <View style={styles.messageContent}>

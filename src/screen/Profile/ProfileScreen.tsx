@@ -4,13 +4,14 @@ import {
   StyleSheet,
   RefreshControl,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import {showToast} from '../../utils/toast';
 import {ApiResponse, ProfileScreenProps, Photo} from '../../utils/types';
 import apiClient from '../../utils/api';
 import ProfileHeader from './ProfileHeader';
 import ProfileTab from './ProfileTab';
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useFocusEffect} from '@react-navigation/native';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({navigation}) => {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -27,29 +28,33 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({navigation}) => {
       const response: ApiResponse<{photos: Photo[]; userData: any}> =
         await apiClient.get('/myPosts');
       if (response.data.status) {
-        setPhotos(response.data?.data);
-        setUserData(response.data?.data[0]?.user);
+        setPhotos(response.data?.data.posts);
+        setUserData(response.data?.data.user);
       } else {
         throw new Error(
           response.data.message || 'Failed to fetch profile data',
         );
       }
     } catch (err: unknown) {
+      console.log(err);
       showToast('error', 'An error occurred while fetching your profile data');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Fetch data when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData])
+  );
 
   useEffect(() => {
-    if (route.params?.newPost) {
+    if (newPost) {
       fetchData();
     }
-  }, [route.params?.newPost]);
+  }, [newPost]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -62,9 +67,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({navigation}) => {
   }, [navigation]);
 
   const handleWallet = useCallback(() => {
-    // Implement wallet functionality
-    // For example: navigation.navigate('Wallet');
-  }, [navigation]);
+    const phantomURL = 'https://phantom.app/ul/browse';
+    Linking.openURL(phantomURL).catch(err =>
+      console.error('Failed to open Phantom app', err),
+    );
+  }, []);
 
   if (loading) {
     return (

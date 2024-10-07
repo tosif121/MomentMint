@@ -8,15 +8,21 @@ import {
   Text,
   TouchableOpacity,
   Animated,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 import LinearGradient from 'react-native-linear-gradient';
+import {useNavigation} from '@react-navigation/native';
 import {activities} from '../../utils/activity';
+import {showToast} from '../../utils/toast';
+import apiClient from '../../utils/api';
+import {ApiResponse} from '../../utils/types';
 
 const {width, height} = Dimensions.get('window');
 
 interface Photo {
+  id: string;
   imageUrl: string;
   activity: string;
   createdAt: string;
@@ -25,8 +31,12 @@ interface Photo {
 const ProfilePost: React.FC<{
   route: {params: {photos: Photo[]; index: number}};
 }> = ({route}) => {
-  const {photos, index: initialIndex} = route.params;
+  const {photos: initialPhotos, index: initialIndex} = route.params;
+  const [photos, setPhotos] = useState(initialPhotos);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [showDeleteOption, setShowDeleteOption] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation();
   const flatListRef = useRef<FlatList<Photo>>(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -41,6 +51,56 @@ const ProfilePost: React.FC<{
       duration: 1000,
       useNativeDriver: true,
     }).start();
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    Alert.alert('Delete Post', 'Are you sure you want to delete this post?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: async () => {
+          try {
+            setIsLoading(true);
+            const response: ApiResponse<any> = await apiClient.post(
+              '/deletePosts',
+              {
+                id: postId,
+              },
+            );
+
+            if (response.data.status) {
+              showToast('success', response.data.message);
+
+              const newPhotos = photos.filter(photo => photo.id !== postId);
+
+              if (newPhotos.length === 0) {
+                navigation.goBack();
+              } else {
+                setPhotos(newPhotos);
+                setCurrentIndex(prevIndex =>
+                  prevIndex >= newPhotos.length
+                    ? newPhotos.length - 1
+                    : prevIndex,
+                );
+              }
+            }
+          } catch (error: any) {
+            showToast(
+              'error',
+              error.response?.data?.message ||
+                'An error occurred while deleting the post.',
+            );
+          } finally {
+            setIsLoading(false);
+            setShowDeleteOption(false);
+          }
+        },
+        style: 'destructive',
+      },
+    ]);
   };
 
   const renderItem = ({item}: {item: Photo}) => {
@@ -110,13 +170,25 @@ const ProfilePost: React.FC<{
               </View>
 
               <View style={styles.interactionButtonContainer}>
-                <TouchableOpacity style={styles.interactionButton}>
-                  <Icon
-                    name="ellipsis-vertical-outline"
-                    size={24}
-                    color="white"
-                  />
-                </TouchableOpacity>
+                {showDeleteOption ? (
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeletePost(item.id)}
+                    disabled={isLoading}>
+                    <Icon name="trash-outline" size={24} color="#FF6B6B" />
+                    <Text style={styles.deleteText}>Delete</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.interactionButton}
+                    onPress={() => setShowDeleteOption(true)}>
+                    <Icon
+                      name="ellipsis-vertical-outline"
+                      size={24}
+                      color="white"
+                    />
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </LinearGradient>
@@ -134,6 +206,7 @@ const ProfilePost: React.FC<{
   const onViewableItemsChanged = useRef(({viewableItems}: any) => {
     if (viewableItems.length > 0) {
       setCurrentIndex(viewableItems[0].index);
+      setShowDeleteOption(false);
       fadeIn();
     }
   }).current;
@@ -144,7 +217,7 @@ const ProfilePost: React.FC<{
         ref={flatListRef}
         data={photos}
         renderItem={renderItem}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={item => item.id}
         vertical
         pagingEnabled
         showsVerticalScrollIndicator={false}
@@ -158,7 +231,6 @@ const ProfilePost: React.FC<{
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -255,6 +327,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 8,
     paddingHorizontal: 5,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 59, 48, 0.2)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  deleteText: {
+    color: '#FF6B6B',
+    marginLeft: 5,
+    fontSize: 14,
+    fontWeight: '600',
   },
   interactionText: {
     color: '#FFFFFF',

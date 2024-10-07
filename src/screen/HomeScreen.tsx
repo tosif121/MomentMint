@@ -47,7 +47,6 @@ interface ApiResponse {
 const HomeScreen: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const scrollY = new Animated.Value(0);
@@ -55,7 +54,6 @@ const HomeScreen: React.FC = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const response = await apiClient.get('/posts');
       const apiResponse = response.data as ApiResponse;
@@ -66,11 +64,6 @@ const HomeScreen: React.FC = () => {
       }
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'An error occurred while fetching data',
-      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -194,18 +187,6 @@ const HomeScreen: React.FC = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#fff" />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Icon name="alert-circle-outline" size={48} color="#FF6B6B" />
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchData}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </TouchableOpacity>
       </View>
     );
   }

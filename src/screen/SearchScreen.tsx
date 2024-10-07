@@ -18,11 +18,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {activities} from '../utils/activity';
 
-const PhotoGridScreen = () => {
+const SearchScreen = () => {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('Moments');
   const windowWidth = Dimensions.get('window').width;
@@ -50,7 +49,6 @@ const PhotoGridScreen = () => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await apiClient.get('/posts');
       const apiResponse = response.data as ApiResponse;
 
@@ -61,11 +59,6 @@ const PhotoGridScreen = () => {
       }
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'An error occurred while fetching data',
-      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -398,4 +391,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PhotoGridScreen;
+export default SearchScreen;

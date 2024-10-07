@@ -17,10 +17,18 @@ import MessagesScreen from './src/screen/MessagesScreen';
 import PreviewScreen from './src/screen/Post/PreviewScreen';
 import ProfileEditScreen from './src/screen/Profile/ProfileEditScreen';
 import ProfilePost from './src/screen/Profile/ProfilePost';
+import ProfileDrawer from './src/screen/Profile/ProfileDrawer';
+import {DefaultTheme} from '@react-navigation/native';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-
+const darkTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: '#101010',
+  },
+};
 type AppProps = {
   navigation: NativeStackNavigationProp<RootStackParamList>;
 };
@@ -68,39 +76,20 @@ function TabNavigator() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      const token = await AsyncStorage.getItem('token');
-      setIsAuthenticated(!!token);
-    } catch (error) {
-      console.error('Error checking auth status:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <>
-      <NavigationContainer>
+      <NavigationContainer theme={darkTheme}>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="Preview" component={PreviewScreen} />
           <Stack.Screen name="EditProfile" component={ProfileEditScreen} />
           <Stack.Screen name="ProfilePost" component={ProfilePost} />
-          {!isAuthenticated && (
-            <Stack.Screen
-              name="MobileVerification"
-              component={MobileVerificationScreen}
-            />
-          )}
+          <Stack.Screen name="ProfileDrawer" component={ProfileDrawer} />
+          <Stack.Screen
+            name="MobileVerification"
+            component={MobileVerificationScreen}
+          />
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />

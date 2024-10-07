@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageSourcePropType,
+  Button,
 } from 'react-native';
 import {ProfileHeaderProps} from '../../utils/types';
+import {useNavigation} from '@react-navigation/native';
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   data,
@@ -16,6 +18,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onEditProfile,
   onWallet,
 }) => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -50,6 +53,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           </View>
         </View>
       </View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('ProfileDrawer')}
+        style={styles.menu}>
+        <Icon name="menu-outline" size={30} color="#fff" />
+      </TouchableOpacity>
 
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
@@ -73,11 +81,12 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={styles.button}
-          onPress={onEditProfile}
+          onPress={() => navigation.navigate('EditProfile', {data})}
           accessibilityLabel="Edit Profile"
           accessibilityRole="button">
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.button}
           onPress={onWallet}
@@ -189,6 +198,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 1,
+  },
+  menu: {
+    position: 'absolute',
+    right: 15,
+    top: 15,
   },
   buttonText: {
     color: 'white',
