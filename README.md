@@ -1,79 +1,111 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+React Native Project: MomentMint
 
-# Getting Started
+## Description
+Moment Mint's mobile app is built with React Native, offering a seamless Android-platform experience for iOS and Android users comming soon. Share real-time moments and earn cryptocurrency on the go!
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+Moment Mint is a revolutionary platform for sharing real-time moments and earning cryptocurrency. Here's what makes it special:
 
-## Step 1: Start the Metro Server
+- **Real-time Sharing**: Capture and share exciting moments as they happen - be it a concert, a beautiful sunset, or any thrilling experience.
+- **Earn Crypto**: Get rewarded with cryptocurrency for sharing your authentic moments.
+- **Blockchain Verification**: We use blockchain technology to verify the authenticity of shared moments, ensuring genuine content.
+- **NFT Creation**: Turn your most special moments into unique Non-Fungible Tokens (NFTs), creating digital collectibles that you exclusively own.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+Experience the joy of sharing, earn rewards, and immortalize your memories in the digital world with Moment Mint!
 
-To start Metro, run the following command from the _root_ of your React Native project:
+## Table of Contents
 
-```bash
-# using npm
-npm start
+1. [Prerequisites](#prerequisites)
+2. [Installation](#installation)
+3. [Running the App](#running-the-app)
+4. [Project Structure](#project-structure)
+5. [Tech Stack](#tech-stack)
 
-# OR using Yarn
-yarn start
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v14 or newer)
+- **npm** or **yarn**
+- **React Native CLI**
+- **Android Studio** (for Android development)
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/tosif121/MomentMint.git
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd MomentMint
+   ```
+
+3. Install the required dependencies:
+   ```bash
+   yarn install
+   # or
+   npm install
+   ```
+
+## Running the App
+
+### Android
+1. Make sure an Android device/emulator is connected or running.
+2. Run the following command to start the app:
+   ```bash
+   npx react-native run-android
+   ```
+
+### iOS (coming soon)
+
+## Project Structure
+
+```
+moment-mint-mobile/
+├── android/                   # Android-specific files and configurations
+├── src/                       # Application source code
+│   ├── images/                # App images and assets
+│   ├── screen/                # Application screens
+│   │   ├── Post/              # Screens for posting moments
+│   │   │   ├── CameraScreen.tsx
+│   │   │   ├── PreviewScreen.tsx
+│   │   ├── Profile/           # Profile management screens
+│   │   │   ├── ProfileDrawer.tsx
+│   │   │   ├── ProfileScreen.tsx
+│   │   │   ├── ProfilePost.tsx
+│   │   │   ├── ProfileHeader.tsx
+│   │   │   ├── ProfileEditScreen.tsx
+│   │   │   ├── ProfileTab.tsx
+│   │   ├── SplashScreen.tsx    # Initial loading screen
+│   │   ├── SearchScreen.tsx    # Search feature
+│   │   ├── MobileVerificationScreen.tsx
+│   │   ├── MessagesScreen.tsx  # Messaging feature
+│   │   └── HomeScreen.tsx      # Main home screen
+│   ├── utils/                  # Utility files (API, types, helpers)
+│   │   ├── activity.ts
+│   │   ├── api.ts
+│   │   ├── toast.ts
+│   │   └── type.ts
+├── App.tsx                    # Entry point of the app
+└── package.json               # Dependencies and scripts
 ```
 
-## Step 2: Start your Application
+## Tech Stack
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+- **React Native**: Cross-platform mobile framework.
+- **TypeScript**: Strongly-typed JavaScript for scalability and maintainability.
+- **React Navigation**: Handles in-app navigation and routing.
+- **React Native Camera**: Used for capturing real-time moments.
+- **Web3 Libraries**: Integrating blockchain technology for content verification and cryptocurrency rewards.
 
-### For Android
+### Common Issues
 
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+1. **Android Gradle issues**:
+   - Run the following commands to clean and rebuild the project:
+   ```bash
+   cd android
+   ./gradlew clean
+   cd ..
+   npx react-native run-android
+   ```
