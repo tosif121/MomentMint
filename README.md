@@ -1,7 +1,6 @@
-React Native Project: MomentMint
+# React Native Project: Moment Mint
 
 ## Description
-Moment Mint's mobile app is built with React Native, offering a seamless Android-platform experience for iOS and Android users comming soon. Share real-time moments and earn cryptocurrency on the go!
 
 Moment Mint is a revolutionary platform for sharing real-time moments and earning cryptocurrency. Here's what makes it special:
 
