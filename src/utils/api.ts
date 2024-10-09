@@ -9,7 +9,7 @@ interface ApiResponse<T> {
 }
 
 const apiClient = axios.create({
-  baseURL: 'http://15.207.26.134:7012/api',
+  baseURL: 'http://3.111.34.72:7012/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

@@ -72,7 +72,7 @@ const PreviewScreen: React.FC<CameraScreenProps> = ({route, navigation}) => {
       formData.append('activity', selectedActivity);
 
       const response = await axios.post(
-        'http://15.207.26.134:7012/api/createPosts',
+        'http://3.111.34.72:7012/api/createPosts',
         formData,
         {
           headers: {
